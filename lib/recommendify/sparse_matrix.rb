@@ -20,7 +20,26 @@ class Recommendify::SparseMatrix
     k_incr(key(x,y))
   end
 
+  def set_set_id_items(set_id, items)
+    Recommendify.redis.hset(set_id_key, set_id, items.join(","))
+  end
+
+  def add_to_set_id_items(set_id, new_item)
+    current_items = get_set_id_items(set_id)
+    new_items = current_items << new_item
+    Recommendify.redis.hset(set_id_key, set_id, new_items.join(","))
+  end
+
+  def get_set_id_items(set_id)
+    current = Recommendify.redis.hget(set_id_key, set_id) || ""
+    current.split(",").map(&:to_s)
+  end
+
 private
+
+  def set_id_key
+    "#{@opts.fetch(:redis_prefix)}:set_id_items"
+  end
 
   def key(x,y)
     [x,y].sort.join(":")

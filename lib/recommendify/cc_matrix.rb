@@ -8,7 +8,6 @@ module Recommendify::CCMatrix
   end
 
   def add_set(set_id, item_ids)
-    # FIXPAUL: forbid | and : in item_ids
     item_ids.each do |item_id|
       item_count_incr(item_id)
     end
@@ -16,13 +15,17 @@ module Recommendify::CCMatrix
       i1, i2 = pair.split(":") 
       ccmatrix.incr(i1, i2)
     end
+    ccmatrix.set_set_id_items(set_id, item_ids)
   end
 
-  def add_single(set_id, item_id, other_item_ids)
+  def add_single(set_id, item_id)
+    item_id = item_id.to_s
     item_count_incr(item_id)
+    other_item_ids = ccmatrix.get_set_id_items(set_id)
     other_item_ids.each do |other_item|
       ccmatrix.incr(item_id, other_item)
     end
+    ccmatrix.add_to_set_id_items(set_id, item_id)
   end
 
   def all_items
