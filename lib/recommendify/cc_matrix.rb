@@ -28,6 +28,11 @@ module Recommendify::CCMatrix
     ccmatrix.add_to_set_id_items(set_id, item_id)
   end
 
+  def add_single_and_queue_for_processing(set_id, item_id)
+    add_single(set_id, item_id)
+    ccmatrix.queue_for_processing(item_id)
+  end
+
   def all_items
     Recommendify.redis.hkeys(redis_key(:items))
   end

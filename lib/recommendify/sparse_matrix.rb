@@ -35,10 +35,24 @@ class Recommendify::SparseMatrix
     current.split(",").map(&:to_s)
   end
 
+  def queue_for_processing(item_id)
+    Recommendify.redis.rpush(processing_queue_key, item_id)
+  end
+
+  def each_process_queue_item
+    while item_id = Recommendify.redis.lpop(processing_queue_key)
+      yield item_id
+    end
+  end
+
 private
 
   def set_id_key
     "#{@opts.fetch(:redis_prefix)}:set_id_items"
+  end
+
+  def processing_queue_key
+    "#{@opts.fetch(:redis_prefix)}:processing_queue"
   end
 
   def key(x,y)
